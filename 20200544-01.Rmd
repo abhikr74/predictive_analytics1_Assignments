@@ -1,0 +1,566 @@
+---
+title: "PredectiveAnalytics-Assignment01"
+author: "Abhishek Kumar-20200544"
+date: "23/10/2020"
+output:
+  html_document: default
+  word_document: default
+---
+
+```{r packages}
+install.packages("psych")
+library(psych)
+```
+
+##Set Working Directory
+
+Working directory defined to store the file and graps produced during this assignment.
+
+```{r}
+setwd("/home/abhishek/Desktop/Pridctive analytics/Assignment1")
+```
+
+
+## Load Data
+
+```{r load data}
+
+cowdf = read.csv('AMM_2018-10-31.csv') # loading data from csv to a dataframe cowdf
+head(cowdf)
+str(cowdf)
+
+```
+
+
+
+## Exploratory Data Analysis
+
+#1. Using a boxplot, histogram and the descriptive statistics (mean, min, max, median, and quantiles). Describe the distribution of the somatic cell count scc.
+
+Answer:
+
+- From the boxplot and histogram, I can see that data sets has maximum samples with scc count in range between 0 - 400 approximately, and the dots above the whiskers in the box plot suggests extremely large counts of scc in milk samples as outliers (approximately 36 has unusually large scc counts in their milk sample)
+- Mean is the average value of dataset and is sensitive to outliers, and tends to move towards the skew suggesting asymmetry in the distribution.
+- Average scc count per milliliters in milk of an individual cow is 145.9.
+- Median Indicates the center of data, from the results we can see that 50% of cows had scc count of 74 or lower.
+- As the mean and median do not match, we can say the distribution of scc count is skewed. As mean is greater the than median distribution will be right skewed, suggesting majority of data-points in lower region.
+- Min scc level in sample was 8  and max was 3447.
+- 25% of cows had scc count of 36 or lower
+- 75% of cows had scc count 144 or lower.
+- Difference between 3rd and 1st quantile estimates that scc counts are varying by 108 around the median value of 74 
+- Conclusion is that data needs to be normalized before further investigation as majority of data is within scc count of 0-400 approximately.
+
+
+
+```{r boxplot, histogram for scc}
+
+boxplot(cowdf$scc, main = "SCC Counts (per millilitres in milk sample)")
+hist(cowdf$scc, xlab = "SCC count", main = "SCC Counts (per millilitres in milk sample)")
+
+summary(cowdf$scc)
+length(which(cowdf$scc > 400)) # Approximate number of outliers in the data set.
+
+```
+
+
+
+#2. Using a boxplot, histogram and the descriptive statistics (mean, min, max, median, and quantiles).
+
+Answer:
+
+- By taking log on scc column of the dataset, the we made the skewed data conform to normality.
+- Mean i.e average logscc counts in the milk sample is 4.357 and Median where 50% of data lies in the data set is 4.304. Both of them measure of center of data and is now approximately equal, indicating normal distribution of the scc counts in the milk samples.
+- Min logscc count across the dataset is 2.079 and max is 8.145.
+- Quantile 1 i.e 25% of cows had log(scc) counts of 3.584 or lower and Quantile 3 i.e 75% of cows had log(scc) count 4.790 or lower in milk samples.
+- Outliers (Unusually high values of logscc counts in milk sample) explains the slight tail on the right side of the graph and, mean value slightly greater than the median.
+- Difference between 3rd and 1st quantile (Interquantile range) indicates that log(scc) counts are varying by 1.206 around the median value of 4.304.
+
+
+
+```{r log scc distribution}
+
+boxplot(log(cowdf$scc), ylab = "Log(SCC)",main = "Log(SCC)-per millilitres in milk sample")
+hist(log(cowdf$scc), xlab = "Log(SCC)",freq = FALSE, main = "Log(SCC)-per millilitres in milk sample")
+lines(density(log(cowdf$scc)))
+summary(log(cowdf$scc))
+```
+
+
+
+#3. Using a boxplot, histogram and the descriptive statistics (mean, min, max, median, and quantiles). Describe the distribution of the protein levels protein.
+
+Answer:
+-  From the boxplot and histogram, protein levels in milk across cows seems to follow normal distribution in general as median divides the box equally in two halves.
+- Mean (4.384) and Median(4.375) are approximately equal. indicating approximately normal distribution.
+- Average protein level in cows is around 4.384 g/L and 50% of cows had protein level of 4.375 or lower.
+- 25% of cows had protein level of 4.110 g/L or lower and 75% had protein level of 4.690 g/L or lower.
+- Lower Outliers (Unusually low values of protein levels in milk sample) explains the slight tail on the left side of the graph, and mean slightly less than the median.
+-Difference between 3rd and 1st quantile (i.e Interquantile range) indicates that protein levels in milk sample are varying by 0.58 g/L on average around the median value of 4.375 g/L.
+
+
+
+```{r protein}
+boxplot((cowdf$protein), main = "Protein Levels (g/L in milk sample)", ylab= "Protein Level")
+hist((cowdf$protein),freq = FALSE, main = "Protein Levels (g/L in milk sample)", xlab= "Protein Level")
+lines(density(cowdf$protein))
+summary((cowdf$protein))
+```
+
+#4.Using a boxplot, histogram and the descriptive statistics (mean, min, max, median, and quantiles). Describe the distribution of the casein levels casein.
+
+Answer:
+- From the boxplot and histogram, Casein level in milk sample for cows has follows normal distribution 
+- Data looks like a normal distribution as median divides the box equally in two halves.
+- Mean (3.367) and Median (3.370) are approximately equal. indicating normal distribution.
+- Average Casein level in cows is around 3.367 g/L and 50% of cows had casein level of 3.370 or lower.
+- 25% of cows had casein level of 3.150 g/L or lower and 75% had casein level of 3.630 g/L or lower.
+- More outliers in the lower section explains the slight tail on the left side of the graph and mean slightly lower than the median.
+- Difference between 3rd and 1st quantile (i.e Interquantile range) indicates that casein levels in milk sample are varying by 0.003 g/L on average around the median value of 3.370 g/L.
+
+
+
+```{r casein}
+boxplot(cowdf$casein, main = "Casein Levels (g/L in milk sample)", ylab= "Casein Level")
+hist(cowdf$casein, freq = FALSE, main = "Casein Levels (g/L in milk sample)", xlab= "Casein Level")
+lines(density(cowdf$casein))
+summary(cowdf$casein)
+```
+
+
+#5. Convert the categorical variable conc_fed to a factor. Describe and illustrate the frequency and proportions of the categorical variable concentrate feed conc_fed
+
+Answer:
+- conc_fed is the amount of supplements in an individual cow diet and and levels were found to 0%, 1.5%, 2.5%, and 3.5%.
+- Table were used to get the unique values for different supplements levels in the cows diet samples.
+- barplot was used to get the proportions of each suppliment levels in diet.
+- Approximately 46.8% i.e around 249 cows didn't take any additional supplements in their diets.
+- 158 cows i.e 29.69% contained 1.5% supplements in their diet.
+- 53 cows i.e 9.96% contained 2.5% supplements in their diet.
+- 72 cows i.e 13.53% contained 3.5% supplements in their diet.
+
+
+
+```{r factor conc_fed}
+
+conc_fed = factor(cowdf$conc_fed)
+table(conc_fed) # Number of cows in each supplement categories in a table format
+table(conc_fed)/length(cowdf$conc_fed)*100 # Percentage of cows in each supplement category in table format
+plot(conc_fed, xlab = "Suppliment%", ylab = "Number of cows", main = "Suppliment levels in cow diets", ylim = c(0, 280))
+barplot(prop.table(table(conc_fed)), xlab = "Suppliemt% in diet",ylab ="Proportions",ylim = c(0, 0.5), col = heat.colors(16)) # Proportion table of 
+```
+
+
+#6. Using the descriptive statistics (mean, standard deviation, median, mad: median absolute deviation (from the median), minimum, maximum, skew and standard error) and a boxplot describe how the log of somatic cell counts scc varies with respect to the variable concentrate feed conc_fed 
+
+Answer:
+- 50% cows who didn't take any supplements had log(scc) count of 4.4 or lower.
+- 50% cows who took 1.5% supplements in their diet had approximately log(scc) count of 4.4 or lower
+- There don't seems to be a strong relationship b/w  supplements levels in diet and level of scc (indicating mastitis infection) in cows. As we can see from the box plot that cows have average ssc levels close to each other in all categories (0% supplement - 4.36, 1.5% supplement - 4.36, 2.5% supplement - 4.15, and 3.5% supplement -4.24 ), Infection level seems to be slightly lower in average for group of cows having 2.5% supplements in their diet than other groups.  Median is also approximately same for all except in cows with 2.5% supplements in their diets.
+- MAD and SD are measures of variation of data from average value(mean), we can see that width of boxes are quite close for each groups suggesting lesser variation in infections levels in cows from average number of infections in different groups based on levels of supplements they took in their diet. From the descriptive table we can see that MAD and SD are similar in each group and this suggest variation in infection levels in each group across mean is minimal.
+- Skew measures the level of asymmetry in the distribution and from the descriptive table positive values of skew suggest some small level of asymmetry in distribution of infection levels in each group.
+- from correlation value of -0.07 we can say there is no relation relationship between supplement level in diet and corresponding variables as its close to 0.
+- Overall looking at the different parameter from the descriptive statistics table, I can say that variations in logscc counts in milk is less with respect to different levels of supplements in cow diet.
+
+
+
+```{r}
+
+describeBy(log(cowdf$scc),cowdf$conc_fed)
+
+boxplot(log(cowdf$scc)~cowdf$conc_fed, main = "Boxplot: Log(SCC) levels vs Suppliment% in diet", xlab = "Suppliment%", ylab ="Log(SCC) levels")
+
+cor(log(cowdf$scc),cowdf$conc_fed)
+```
+
+
+
+#7. Using the correlation and scatter plots discuss the relationship between log(scc) and each of the variables protein and casein. 
+
+Answer:
+- From the scatter plots we can see data is randomly spread and there is no strong relationship between the two variables.
+- Correlation suggests how strong relationship exists between two variables.
+- Positive corelation will suggest that increse in values of predictor variable will increase the values of the response variable.
+- Correlation value for of scc-Protein is 0.126 which suggest weak but positive correlation as its closer to 0.
+- Correlation value for scc-Casein is 0.084 which suggest weak positive correlation as its closer to 0.
+
+
+
+```{r }
+par(mfrow = c(1,2))
+plot(cowdf$protein, log(cowdf$scc),xlab = "SCC counts(per ml)", ylab ="Protein level g/L")
+plot(cowdf$casein, log(cowdf$scc),xlab = "SCC counts(per ml)", ylab ="Casein level g/L")
+par(mfrow = c(1,1))
+
+cor(log(cowdf$scc),cowdf$protein)
+cor(log(cowdf$scc),cowdf$casein)
+
+```
+
+
+#8.Based on the results from Q 7, which variable protein or casein would provide a better predictor variable in your regression model with log(scc) as the response. Provide a justification for your selection. 
+
+Answer:
+- Correlation suggests how strong relationship exists between two variables.
+- Positive correlation value suggests positive linear relationship between the variables i.e increase in levels of protein and casein will lead to increase in logscc counts in milk sample for a cow.
+- Since the value is smaller and closer to 0 for both the variables casein and protein with logscc, we can say that there exits weak linear positive relation ship between logscc count in milk with the level of protein and casein in milk sample.
+- Based on correlation values (scc-Protein 0.126 > scc-Casein 0.084 ) of ssc with protein and casein we can say that, protein will be a better predictor variable for estimating ssc counts in milk produced by cows.
+
+
+
+## Regresion Model
+
+#1.Using R fit a simple linear regression model to the data with log(scc) as the response variable and the variable chosen in Q8 of the exploratory analysis section as the predictor variable. Define and describe the mathematical equation for the model.
+
+Answer:
+- General mathematical relation for linear regression model is, Y = beta0 + beta1X + error
+  where Y is the response variable and X is the Predictor Variable. beta0 is Y-intercept and beta1 regression   coefficient.
+  
+- Taking log(scc) as response variable and protein as predictor variable, the corresponding mathematical equation for linear regression model will be.
+    log(scc)_i = 3.1246 + (0.2812 * protein_i) + error_i
+    - So 3.1246, indicates the log(scc) count in milk when protein level in milk is 0.
+    - Regression coefficient 0.2812 is the change in log(scc) count for 1 unit change in protein levels in milk.
+    - Each pair (protein_i, log(scc)_i) illustrates a pair on x-y plane
+    - The points (protein_i, log(scc)_i) will not lie exactly along the fitted line as there will be some error             associated with each observation.
+    
+    
+
+```{r regression fit}
+cowdf$logScc = log(cowdf$scc) # adding a column logScc in the dataframe cowdf
+fit = lm(logScc~protein, data =cowdf) 
+fit 
+plot(cowdf$protein, cowdf$logScc, xlab = "Protein level", ylab = "Log(scc) counts")
+lines(cowdf$protein,fitted(fit), col = "red")
+
+```
+
+
+- To calculate the estimate for beta 0 and beta 1 is required
+- Calculating SXY and SXX, which will be used to calculate beta1.
+
+```{r estimate beta0}
+SXY = sum(((cowdf$protein)-mean(cowdf$protein))*((cowdf$logScc)-mean(cowdf$logScc))) # This is sample co-variance of XY
+SXX = sum((cowdf$protein - mean(cowdf$protein))^2) # This is sample co-variance of XX
+
+SXY
+SXX
+```
+
+
+
+#2. Interpret the estimate of the intercept term.
+#3. Interpret the estimate of the slope term.
+
+Answer:
+- To calculate the estimate of beta0 estimate of b1 is required.
+- Estimate of can be calculated using SXY/SXX (Sample covariance of XY / Sample covariance of X)
+- slope was estimated using formula : beta1 = SXY/SXX
+- intercept was estimated using formula : beta0 = mean(protein) - (beta1*(mean(protein)))
+- Estimate of slope i.e beta1  = 0.2812262
+- Estimate of intercept i.e beta0 = 3.150783
+- So Linear regression model equation will be logScc_i = 3.150783 + 0.2812262*cowdf$protein
+- This explains that a 1 unit change in protein levels in cows milk will lead to increase of 0.2812262 logscc counts.
+- Also, the intercept explains that when protein levels in milk is 0, at that time the logscc count in milk sample will be 3.150783.
+- Estimators are sampling statistcs and as result has sampling distribution, values of estimates of beta0 and beta1 are found to be equal to true value (as seen in question 1)so we can say that distribution of estimators are unbiased.
+
+
+```{r question2,3}
+beta1 = SXY/SXX # regression coefficient = Sample covariance of XY / Sample covariance of X
+beta1
+beta0 = mean(cowdf$protein) - (beta1*(mean(cowdf$protein))) # Intercept
+beta0
+
+linearmod = lm(logScc~protein , data = cowdf)  # fitting the linear model
+linearmod
+```
+
+
+- Storing the number of observations and MSE values
+- MSE (Mean Square of residuals) = SSE/N-2 ,where N-2 is the degree of freedom. N is the number of observation or datapoints and beta0 and beta1 was needed to calculate predicted value of Y, so 2 was subtracted from N.
+
+```{r}
+N   = length(cowdf$logScc) # Number of observations in the dataset
+MSE = sum(linearmod$residuals^2/
+            (length(cowdf$logScc)-2)) # Mean Square of Residuals
+```
+
+
+
+#4. Calculate the variance of the estimate of the intercept and slope term.
+
+Answer:
+- Storing the number of observations and MSE values in variables N and MSE.
+- MSE (Mean Square of residuals) = SSE/N-2 ,where N-2 is the degree of freedom. N is the number of observation or datapoints and beta0 and beta1 was needed to calculate predicted value of Y, so 2 was subtracted from N.
+- Calculated variance of intercept using formula : MSE*((1/N)+(mean(cowdf$protein)^2/SXX)) 
+- Calculated variance of intercept using formula : MSE/SXX
+- Variance of intercept is : 0.1779695
+- Variance of intercept is : 0.009159467
+- Here MSE is mean square of residuals and N is the number of observations in our the dataset.
+
+```{r variance}
+# Variance of estimate of beta0
+VARBO = MSE*((1/N)+(mean(cowdf$protein)^2/SXX))
+VARBO
+# Variance of estimate of beta1
+VARB1 = MSE/SXX
+VARB1
+```
+
+
+#5. Calculate and interpret the confidence intervals for β 0.
+
+Answer:
+- Confidence interval is the range of values we are sure the true value will lie within.
+- TDIST t-value at 5% significance level and N-2 degree of freedom
+- alpha is significance level that I considered for calculating CI.
+- With the results from calculations, we are 95% confident that when protein level in milk is 0, the logScc count in milk will be between the interval 2.322051, 3.979514.
+
+
+
+```{r CI_beta0}
+alpha = 0.05 # 5% significance level
+TDIST = qt(1-(alpha/2), N-2) # t distributed value at 95% confidence, N-2 is degree of freedom
+CI_beta0 = c(beta0 - TDIST*sqrt(VARBO), beta0 + TDIST*sqrt(VARBO)) #Lower and upper confidence Interval
+CI_beta0
+
+```
+
+
+#6. Calculate and interpret the confidence intervals for β 1.
+
+Answer:
+- Confidence interval is the range of values we are sure the true value will lie within.
+- TDIST t-value at 5% significance level and N-2 degree of freedom
+- alpha is significance level that I considered for calculating Confidence Interval.
+- With the results from calculations, we are 95% confident that beta1 which represents the average increase in logScc counts given one unit change in protein levels in milk is between 0.09321 to 0.4692
+
+
+
+```{r CI_beta1}
+
+CI_beta1 = c(beta1 - TDIST*sqrt(VARB1), beta1 + TDIST*sqrt(VARB1))
+CI_beta1
+
+```
+
+
+#7. Compute and interpret the hypothesis test H 0 : β 0 = 0 vs H a : β 0 6 = 0. State the test statistic.
+
+Answer:
+Compare the test statistic to the correct distribution value and state your conclusion. Also, report the
+p-value and the conclusion in the context of the problem.
+
+- Null Hypothesis states that if, protein levels in milk is 0 then logScc count will be 0.
+- ALternate Hypothesis is that that , logScc count in milk sample will not be zero when protein level in milk is 0.
+- Test statistics was calculated was equal to 7.406539 which is greater than TDIST i,e 1.96445
+- Since |T| > t-value at 5 % significance level, I reject the null hypothesis.
+- p-value which is the probability of null hypothesis H0 being true, ie, beta0 is equal to 0, but since the pvalue is very small and is approximately equal to 0. we reject the null hypothesis.
+- Probability that Ho is True is 0,SO I reject Null hypothesis. So, Alternate hypothesis is true and I conclude that logScc count is not equal to when protein level in milk is zero.
+
+
+
+```{r T-test_beta0}
+# T-Test
+# Testing intercept beta0, Null Hypothesis :  beta0 = 0 and Alternate Hypothesis :  beta0 != 0 using T test
+# a) Calculating absolute value of T. 
+
+alpha = 0.05 # Taking the significance level
+T = (linearmod$coefficients[1] - 0)/ sqrt(VARBO) # Sample test statistics taking beta0 as 0 as per Ho condition.
+T
+
+abs(T) > TDIST # Since |T| > t-value at 5 % significance level, we will reject the null hypothesis.
+
+# Calculating P-value, i.e Probability that Ho is True
+PVALUE = 2*(1-pt(T, df = N-2))
+PVALUE  # p-value received is very small which is approximately equal to 0.
+
+# Probability that Ho is True is 0, so I conclude that logScc count is not equal to when protein level in milk is zero. S
+
+```
+
+
+
+#8. Compute and interpret the hypothesis test H 0 : β 1 = 0 vs H a : β 1 6 = 0. State the test statistic.
+
+Answer:
+Compare the test statistic to the correct distribution value and state your conclusion. Also, report the
+p-value and the conclusion in the context of the problem.
+
+- Null Hypothesis states that if, beta1 is 0 i.e there is no significant relationship between logScc counts and predictor variable protein level in milk sample.
+- ALternate Hypothesis is that beta1 is not 0, i,e there is relationship between logScc counts and predictor variable protein level in milk sample.
+- Test statistics was calculated was equal to 2.938466  which is greater than TDIST i,e 1.96445
+- Since |T| > t-value at 5 % significance level, I reject the null hypothesis that predictor variable is insignificant in the model.
+- p-value is the probability of null hypothesis H0 being true, ie, beta1 is equal to 0, but since the pvalue is very small and is approximately equal to 0. I reject the null hypothesis.
+-I conclude that alternate hypothesis is true and there exists a relationship between protein level in milk and logScc count in the sample.
+
+
+
+```{r T-test_beta1}
+
+T = (linearmod$coefficients[2]-0)/(sqrt(VARB1)) # Sample test statistics taking beta1 as 0 as per Ho condition.
+T
+
+abs(T)>TDIST # Returns true, since |T| > t-value at 5 % significance level, we will reject the null hypothesis.
+
+# Calculating p-value, i.e probability that Ho is True.
+PVALUE = 2*(1-pt(T, N-2))
+PVALUE
+
+#Probability that beta1 is 0 is 0.00344, i.e there is no significant relationship between response variable logScc and predictor variable protein level in milk sample. So we can reject the null hypothesis for beta1.
+
+# This is indicating that there is relationship between logScc and protein values in milk.
+
+```
+
+
+#9.Interpret the F-statistic in the output in the summary of the regression model. Hint: State the hypothesis being tested, the test statistic and p-value and the conclusion in the context of the problem.
+
+Answer:
+- Null Hypothesis of F-test is beta1 = 0 and alternate hypothesis is that beta1 != 0.
+- Null hypothesis states that response variable is better predicted without predictor variable. 
+  Ho :logScc_i= beta0 +error_i
+- Alternate hypothesis states that predictor variable protein levels in milk contribute enough information to justify its inclusion in the model to predict the logScc counts in the milk sample.
+- F-statistics in summary output of regression model: F-statistic: 8.635 on 1 and 530 DF,  p-value: 0.003442
+  8.635 on 1 and 530 degree of freedom, 1 as we have one predictor variable protein levels in milk and 530 i.e (N-2) as two parameters beta0 and beta1 parameters estimated in the full model.
+  # If F > f0.95,(1,530), then we reject the null hypothesis that logScc_i= beta0 +error_i is better model and predictor variables doesnt contribute enough to be included in the model.
+  
+  # As, 8.635 > 3.859064, I can reject the null hypothesis.
+  # Also, P-value represents the probability of null hypothesis being true is 0.003442
+- So, based on the results, I can conclude that predictor variable protein levels in milk must be contributing something to the model, so it must be included in the model to predict the logScc counts.
+
+
+
+```{r F-statsitics}
+summary(linearmod)
+FDIST = qf(1-alpha, 1, N-2)
+FDIST
+```
+
+
+#10. Interpret the R-squared value.
+
+Answer:
+- R2 is the measure of how well data fits the model.
+- From the value of 0.01603, we can say that 1.6% of variations in logScc counts in mill sample can be stated from the predictor variable protein levels in milk.
+- Its not an ideal model to predict the logScc counts based on information of protein levels in milk. It implies that predictor variable is contributing very less.
+
+
+
+```{r R2value}
+summary(linearmod)
+```
+
+
+#11. Interpret the residual standard error of the simple linear regression model
+
+Answer:
+- Residual standard Error is the measure of the quality of the LR fit.
+- Root mean square error is called residual standard error.
+- Smaller residual error's means predictions are better.
+- Model has residual standard error of 1.023 which is not close to zero, so that means protein levels in milk predict the logScc counts with 1.023 error on average.
+
+
+
+```{r}
+sqrt(MSE) # Root mean square
+```
+
+
+#12. Calculate, plot and comment on the shape of the confidence intervals for the estimated values of Y
+
+Answer:
+- From the plot we can state that any estimate of logScc will lie within the confidence interval lines.
+- Blue line indicates the fitted line, i.e the predicted values of Y. For each each new sample from protein levels in milk, the corresponding predicted value will be in between the confidence interval line indicated by red colour in the plot.
+
+
+
+```{r}
+
+SSE = sum((cowdf$logScc - linearmod$fitted.values)^2) #Error Sum of Squares i.e difference between fitted values and actual values.
+MSE1 = SSE/N
+VAR_Y = MSE1*(1/N+(cowdf$protein-mean(cowdf$protein))^2/SXX) # VAriance of Y is MSE* Variance of error
+Yhat = fitted(linearmod) # Predicted values of Y
+
+LC = Yhat- qt(1-alpha/2,N-2)*sqrt(VAR_Y) # Lower Confidence interval of Y
+UC = Yhat + qt(1-alpha/2,N-2)*sqrt(VAR_Y) # Lower Confidence interval of Y
+
+ord = order(cowdf$protein)
+
+plot(cowdf$protein,cowdf$logScc,xlab="Protein",ylab="logScc", main = "CI of estimates of Y")
+lines(cowdf$protein,Yhat,col="blue") # fitted values line
+lines(cowdf$protein[ord],LC[ord],col="red", lty = 1) # Upper confidence interval line for estimate of y
+lines(cowdf$protein[ord],UC[ord],col="red", lty = 1) # Lower confidence interval line for estimate of y
+
+```
+
+
+#13. List the assumptions of the linear regression model required for small sample inference.
+
+Model will always give out the values of beta0 and beta1, everytime we fit the model with data.
+In order for these parameters to be consistent and unbaised with the data we are working on, we make ceratin assumptions of the linear regression model.
+
+-Linear Relationship: The relationship between the response variable (Y) and predictor variable (X) is linear.
+Form the scatter plot we saw a kind of general linear relationship between X and Y, there was no strong non-linear relationship pattern between protein levels and logScc counts in milk sample.
+- So I can say tehere was linearity in parameters.
+
+-Variation in X (Predictor variable) : In our data X is protein levels and from the data we see the variation in it and all of them are not same. This assumption seems to be consistent with data as well, suppose if all the values of protein levels in milk was same then the average protein level in milk sample would be equal to the actual value. In that case SXX = Sum(Xi-mean(x))^2 will be 0 and then the parameter beta1 will be infinite (SXX = SXY/SXX). So in order to get consistency in the linear we need to have variation in the predictor variable.
+
+Random Sampling : There must not be any groupings in the dataset and each individual should not be repeated.
+- From the data we dont see any groupings in the cows milk samples data from the plot distributions. 
+- We dont see any bimodal distributions, this means they are randomly selected cow milk samples.
+
+Zero conditional Mean of error : Difference between what actually happened and what the model predicted should be zero, i.e its is expected have zero error.
+For our milk sample data, the residuals were 0 on average, so it did satisfy this assumption.
+
+Homoskedasticity : The variance of the errors should be consistent for all observations. In other words, the variance does not change for each observation or for a range of observations and should vary constantly about the zero mean.
+
+Normality of errors: The distribution of the residuals should follow normal distribution.
+In our case the distribution was generally normal but with slightly longer tail in the right end of the curve.
+
+
+
+
+
+#14. Examine the residuals of the regression model and comment on whether you think the residuals satisfy
+the assumptions of the linear model.
+
+-  Zero Conditional Mean: From summary table I can see that residuals have mean 0, so residuals satisfy the assumption of zero conditional mean. The scatter plot of residuals also indicates that residuals are randomly distributed about 0 and there seems to be no relationship between errors. 
+
+- Constant variance : The errors should vary constantly about the zero mean.
+In our data if I take a constant band of 2 above mean 0 and 2 below it, maximum data should be captured in this band and in general I see the residuals average is O. But there are some outliees in the above and below the band considered.
+So the error's may not be constantly varying. This can be seen on the scatter plot between residuals and protein levels in milk as well. There is lesser variation in errors in milk sample with lower protein levels (i.e from protein levels 0-3 approximately) but variation in errors increases at higer protein levels(3.5 - 4.5) and decrease again at th end for really high levels of preotein in sample. This suggest that model is giving better predictions for logScc counts at lower protein levels but then the error seems to increase in predictions of logScc counts at higher protein levels in milk. So, this suggest we dont have constant variance in errors across the whole dataset.
+
+- Normality pf errors: The errors must be normally distributed or atleast approximately normally distributed.
+  From the box plot we can see there are outliers and density curve we can see that a small tail towards the right side of the curve. The distribution is generally symmetric with slightly longer tail on the right side of the curve due to the outliers, Which indicates large errors values in predictions.
+  From Shapiro-Wilk test also we can see p-value close of 0,and p-value of less that 0.05 indicates distribution of errors is not normal.
+  From QQ plots, I compared the distribution in our data calculated at the same quantiles as from the sample quantiles from the normal distribution.
+  I can see that quantiles from my dataset are not strictly following the Normal distribution curve tend to deviate at the tails. This suggests that residuals are not perfectly normally distributed and there seems to be an unsymmetry in the curve at the end tail.
+
+- Cooks distance can give the influence exerted by each observation on the predicted outcomes.
+  Influential datapoints change the fit and can be removed from the dataset to improve the models prediction.
+  Removing the influential datapoints can reduce the larger error values and hence normalize residual distribution.
+  
+  
+
+```{r residualsassumptions}
+summary(residuals(linearmod))
+plot(cowdf$protein, residuals(linearmod), xlab = "Protein levels", ylab = "Mean") # Scatter plot to check the the constant variance
+
+#Normality of Errors
+boxplot(residuals(linearmod), main="Residuals")
+hist(residuals(linearmod), freq = FALSE, main = "Residuals distribution", xlab ="Residuals")
+lines(density(residuals(linearmod)), lw = 2, col = "blue")
+
+#Test for normality
+shapiro.test(residuals(linearmod))
+
+qqnorm(residuals(linearmod),main="QQ plot",pch=19,cex = 0.7, col ="blue")
+qqline(residuals(linearmod))
+```
+
+# Plagarism Declaration
+
+I "Abhishek Kumar" confirm that this assignment is my own work. I have not copied in part or whole or otherwise plagiarised the work of other students and/or persons. I confirm that I have read and understood the UCD School of Mathematics and Statistics regulations on plagiarism in the Week 5 folder on bright space.
+
+# References 
+
+1 https://www.rdocumentation.org/
